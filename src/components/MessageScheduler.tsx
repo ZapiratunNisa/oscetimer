@@ -148,17 +148,22 @@ export const MessageScheduler: React.FC<MessageSchedulerProps> = ({
                           {formatTime(msg.timeInSeconds)}
                         </Badge>
                         {msg.executed && (
-                          <Badge variant="outline" className="text-xs text-primary">
-                            ✓ Selesai
+                          <Badge variant="outline" className="text-xs text-primary border-primary">
+                            ✓ Telah Dibacakan
                           </Badge>
                         )}
                       </div>
                       <p className={cn(
                         "text-sm leading-relaxed",
-                        msg.executed ? "text-primary" : "text-foreground"
+                        msg.executed ? "text-primary font-medium" : "text-foreground"
                       )}>
                         {msg.message}
                       </p>
+                      {!msg.executed && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          📢 Akan dibacakan otomatis saat timer mencapai waktu ini
+                        </p>
+                      )}
                     </div>
                     <div className="flex gap-2">
                       <Button

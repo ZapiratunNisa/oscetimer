@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Timer } from '@/components/Timer';
 import { MessageScheduler, ScheduledMessage } from '@/components/MessageScheduler';
 import { VoiceSettings } from '@/components/VoiceSettings';
+import { TimerProgress } from '@/components/TimerProgress';
 import { useSpeechSynthesis } from '@/hooks/useSpeechSynthesis';
 import { useToast } from '@/hooks/use-toast';
 import heroImage from '@/assets/hero-image.jpg';
@@ -9,6 +10,8 @@ import heroImage from '@/assets/hero-image.jpg';
 const Index = () => {
   const [scheduledMessages, setScheduledMessages] = useState<ScheduledMessage[]>([]);
   const [currentDuration, setCurrentDuration] = useState(300); // 5 minutes default
+  const [currentRemainingTime, setCurrentRemainingTime] = useState(300);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
   const { speak, selectedVoice, handleVoiceChange } = useSpeechSynthesis();
   const { toast } = useToast();
 
@@ -44,14 +47,16 @@ const Index = () => {
     if (message) {
       speak(message.message);
       toast({
-        title: "🔊 Pesan Dibacakan",
+        title: "🔊 Pesan Otomatis Dibacakan",
         description: message.message,
+        duration: 5000,
       });
     }
   }, [scheduledMessages, speak, toast]);
 
-  const handleTimeUpdate = useCallback((remainingSeconds: number) => {
-    setCurrentDuration(remainingSeconds);
+  const handleTimeUpdate = useCallback((remainingSeconds: number, isRunning: boolean) => {
+    setCurrentRemainingTime(remainingSeconds);
+    setIsTimerRunning(isRunning);
   }, []);
 
   const handleSpeakMessage = useCallback((message: string) => {
@@ -76,35 +81,42 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Column - Timer */}
-          <div className="space-y-8">
-            <Timer 
-              onTimeUpdate={handleTimeUpdate}
-              scheduledMessages={scheduledMessages}
-              onMessageExecuted={handleMessageExecuted}
-            />
-            
-            <VoiceSettings
-              onVoiceChange={handleVoiceChange}
-              onSpeak={handleSpeakMessage}
-              selectedVoice={selectedVoice}
-            />
-          </div>
+        {/* Main Content */}
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Left Column - Timer */}
+            <div className="space-y-8">
+              <Timer 
+                onTimeUpdate={handleTimeUpdate}
+                scheduledMessages={scheduledMessages}
+                onMessageExecuted={handleMessageExecuted}
+              />
+              
+              <VoiceSettings
+                onVoiceChange={handleVoiceChange}
+                onSpeak={handleSpeakMessage}
+                selectedVoice={selectedVoice}
+              />
+            </div>
 
-          {/* Right Column - Message Scheduler */}
-          <div className="space-y-8">
-            <MessageScheduler
-              messages={scheduledMessages}
-              onAddMessage={handleAddMessage}
-              onRemoveMessage={handleRemoveMessage}
-              onSpeakMessage={handleSpeakMessage}
-              totalDuration={currentDuration}
-            />
+            {/* Right Column - Message Scheduler & Progress */}
+            <div className="space-y-8">
+              <TimerProgress
+                remainingSeconds={currentRemainingTime}
+                totalSeconds={currentDuration}
+                isRunning={isTimerRunning}
+                scheduledMessages={scheduledMessages}
+              />
+              
+              <MessageScheduler
+                messages={scheduledMessages}
+                onAddMessage={handleAddMessage}
+                onRemoveMessage={handleRemoveMessage}
+                onSpeakMessage={handleSpeakMessage}
+                totalDuration={currentDuration}
+              />
+            </div>
           </div>
-        </div>
 
         {/* Features Section */}
         <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6">

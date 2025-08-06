@@ -16,7 +16,7 @@ interface ScheduledMessage {
 }
 
 interface TimerProps {
-  onTimeUpdate?: (remainingSeconds: number) => void;
+  onTimeUpdate?: (remainingSeconds: number, isRunning: boolean) => void;
   scheduledMessages?: ScheduledMessage[];
   onMessageExecuted?: (messageId: string) => void;
 }
@@ -52,8 +52,8 @@ export const Timer: React.FC<TimerProps> = ({
   }, [minutes, seconds]);
 
   useEffect(() => {
-    onTimeUpdate?.(remainingSeconds);
-  }, [remainingSeconds, onTimeUpdate]);
+    onTimeUpdate?.(remainingSeconds, isRunning);
+  }, [remainingSeconds, isRunning, onTimeUpdate]);
 
   useEffect(() => {
     if (isRunning && remainingSeconds > 0) {
