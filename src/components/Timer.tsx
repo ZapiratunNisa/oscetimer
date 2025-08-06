@@ -2,8 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Play, Pause, RotateCcw, Timer as TimerIcon } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Slider } from '@/components/ui/slider';
+import { Play, Pause, RotateCcw, Timer as TimerIcon, Volume2, VolumeX } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTimerAudio } from '@/hooks/useTimerAudio';
 
 interface ScheduledMessage {
   id: string;
@@ -30,6 +33,18 @@ export const Timer: React.FC<TimerProps> = ({
   const [isRunning, setIsRunning] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Audio hooks
+  const { 
+    playTick, 
+    playWarningBeep, 
+    playCompletionSound, 
+    isTickEnabled, 
+    setIsTickEnabled, 
+    tickVolume, 
+    setTickVolume,
+    isSupported: isAudioSupported 
+  } = useTimerAudio();
 
   useEffect(() => {
     setTotalSeconds(minutes * 60 + seconds);
@@ -46,6 +61,16 @@ export const Timer: React.FC<TimerProps> = ({
         setRemainingSeconds(prev => {
           const newTime = prev - 1;
           
+          // Play tick sound
+          if (isTickEnabled && newTime > 0) {
+            playTick();
+          }
+          
+          // Play warning beep when 30 seconds or less
+          if (newTime === 30) {
+            playWarningBeep();
+          }
+          
           // Check for scheduled messages
           scheduledMessages.forEach(msg => {
             if (!msg.executed && newTime === (totalSeconds - msg.timeInSeconds)) {
@@ -56,6 +81,7 @@ export const Timer: React.FC<TimerProps> = ({
           if (newTime <= 0) {
             setIsRunning(false);
             setIsCompleted(true);
+            playCompletionSound(); // Play completion sound
             return 0;
           }
           return newTime;
@@ -73,7 +99,7 @@ export const Timer: React.FC<TimerProps> = ({
         clearInterval(intervalRef.current);
       }
     };
-  }, [isRunning, remainingSeconds, scheduledMessages, totalSeconds, onMessageExecuted]);
+  }, [isRunning, remainingSeconds, scheduledMessages, totalSeconds, onMessageExecuted, isTickEnabled, playTick, playWarningBeep, playCompletionSound]);
 
   const handleStart = () => {
     if (remainingSeconds > 0) {
@@ -184,6 +210,48 @@ export const Timer: React.FC<TimerProps> = ({
             Reset
           </Button>
         </div>
+
+        {/* Audio Controls */}
+        {isAudioSupported && (
+          <div className="bg-accent/20 rounded-lg p-4 border border-accent space-y-4">
+            <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <Volume2 className="h-4 w-4" />
+              Pengaturan Audio Timer
+            </h4>
+            
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {isTickEnabled ? <Volume2 className="h-4 w-4 text-primary" /> : <VolumeX className="h-4 w-4 text-muted-foreground" />}
+                <span className="text-sm">Suara Tick Per Detik</span>
+              </div>
+              <Switch
+                checked={isTickEnabled}
+                onCheckedChange={setIsTickEnabled}
+              />
+            </div>
+            
+            {isTickEnabled && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs text-muted-foreground">Volume Tick</label>
+                  <span className="text-xs text-muted-foreground">{Math.round(tickVolume * 100)}%</span>
+                </div>
+                <Slider
+                  value={[tickVolume]}
+                  onValueChange={(value) => setTickVolume(value[0])}
+                  min={0}
+                  max={1}
+                  step={0.1}
+                  className="w-full"
+                />
+              </div>
+            )}
+            
+            <p className="text-xs text-muted-foreground">
+              Timer akan berbunyi setiap detik saat berjalan. Peringatan khusus pada 30 detik terakhir.
+            </p>
+          </div>
+        )}
 
         {isCompleted && (
           <div className="text-destructive text-xl font-bold animate-fade-in">
