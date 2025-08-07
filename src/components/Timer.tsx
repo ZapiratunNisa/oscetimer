@@ -111,28 +111,28 @@ export const Timer: React.FC<TimerProps> = ({
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
   const progress = totalSeconds > 0 ? (totalSeconds - remainingSeconds) / totalSeconds * 100 : 0;
-  return <Card className="p-6 bg-gradient-timer shadow-elegant max-w-md mx-auto">
-      <div className="text-center space-y-4">
-        <div className="flex items-center justify-center gap-2 mb-6">
+  return <Card className="p-8 bg-gradient-timer shadow-elegant">
+      <div className="text-center space-y-6">
+        <div className="flex items-center justify-center gap-2 mb-4">
           <TimerIcon className="h-6 w-6 text-primary" />
-          <h2 className="text-foreground font-bold text-2xl">Timer OSCE</h2>
+          <h2 className="text-foreground font-bold text-center text-5xl">Timer OSCE</h2>
         </div>
 
         {/* Time Settings */}
-        <div className="flex justify-center gap-6 mb-6">
+        <div className="flex justify-center gap-4 mb-6">
           <div className="space-y-2">
             <label className="text-sm font-medium text-muted-foreground">Menit</label>
-            <Input type="number" value={minutes} onChange={e => setMinutes(Math.max(0, parseInt(e.target.value) || 0))} disabled={isRunning} className="w-16 text-center text-lg" min="0" max="99" />
+            <Input type="number" value={minutes} onChange={e => setMinutes(Math.max(0, parseInt(e.target.value) || 0))} disabled={isRunning} className="w-20 text-center" min="0" max="99" />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-muted-foreground">Detik</label>
-            <Input type="number" value={seconds} onChange={e => setSeconds(Math.max(0, Math.min(59, parseInt(e.target.value) || 0)))} disabled={isRunning} className="w-16 text-center text-lg" min="0" max="59" />
+            <Input type="number" value={seconds} onChange={e => setSeconds(Math.max(0, Math.min(59, parseInt(e.target.value) || 0)))} disabled={isRunning} className="w-20 text-center" min="0" max="59" />
           </div>
         </div>
 
         {/* Timer Display */}
-        <div className="relative mb-6">
-          <div className={cn("text-6xl font-mono font-bold tracking-wider transition-all duration-300", remainingSeconds <= 30 && remainingSeconds > 0 && isRunning ? "text-destructive animate-pulse-glow" : isCompleted ? "text-destructive" : "text-timer-text")}>
+        <div className="relative">
+          <div className={cn("text-8xl font-mono font-bold tracking-wider transition-all duration-300", remainingSeconds <= 30 && remainingSeconds > 0 && isRunning ? "text-destructive animate-pulse-glow" : isCompleted ? "text-destructive" : "text-timer-text")}>
             {formatTime(remainingSeconds)}
           </div>
           
@@ -145,19 +145,19 @@ export const Timer: React.FC<TimerProps> = ({
         </div>
 
         {/* Controls */}
-        <div className="flex justify-center gap-3 mb-6">
-          <Button onClick={handleStart} size="lg" className={cn("px-6 py-2 text-base font-semibold transition-all duration-300", isRunning ? "bg-destructive hover:bg-destructive/90" : "bg-gradient-primary hover:shadow-glow")}>
+        <div className="flex justify-center gap-4">
+          <Button onClick={handleStart} size="lg" className={cn("px-8 py-3 text-lg font-semibold transition-all duration-300", isRunning ? "bg-destructive hover:bg-destructive/90" : "bg-gradient-primary hover:shadow-glow")}>
             {isRunning ? <>
-                <Pause className="h-4 w-4 mr-2" />
+                <Pause className="h-5 w-5 mr-2" />
                 Pause
               </> : <>
-                <Play className="h-4 w-4 mr-2" />
+                <Play className="h-5 w-5 mr-2" />
                 Mulai
               </>}
           </Button>
           
-          <Button onClick={handleReset} variant="outline" size="lg" className="px-6 py-2 text-base font-semibold">
-            <RotateCcw className="h-4 w-4 mr-2" />
+          <Button onClick={handleReset} variant="outline" size="lg" className="px-8 py-3 text-lg font-semibold">
+            <RotateCcw className="h-5 w-5 mr-2" />
             Reset
           </Button>
         </div>
