@@ -255,8 +255,8 @@ export const Timer: React.FC<TimerProps> = ({
         )}
 
         {isCompleted && (
-          <div className="text-destructive text-xl font-bold animate-fade-in">
-            ⏰ Waktu Habis!
+          <div className="text-destructive text-2xl font-bold animate-pulse-glow bg-destructive/10 p-4 rounded-lg border border-destructive">
+            🚨 WAKTU HABIS! ⏰
           </div>
         )}
       </div>

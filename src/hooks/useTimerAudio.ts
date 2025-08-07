@@ -110,8 +110,8 @@ export const useTimerAudio = () => {
     try {
       const audioContext = audioContextRef.current;
       
-      // Create a completion sound (series of beeps)
-      const playBeep = (startTime: number, frequency: number) => {
+      // Create a more prominent completion sound (series of longer beeps)
+      const playBeep = (startTime: number, frequency: number, duration: number = 0.4) => {
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
 
@@ -121,17 +121,19 @@ export const useTimerAudio = () => {
         oscillator.frequency.setValueAtTime(frequency, startTime);
         oscillator.type = 'triangle';
 
-        gainNode.gain.setValueAtTime(tickVolume * 2, startTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + 0.2);
+        // Louder volume for completion sound
+        gainNode.gain.setValueAtTime(Math.min(1.0, tickVolume * 3), startTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
 
         oscillator.start(startTime);
-        oscillator.stop(startTime + 0.2);
+        oscillator.stop(startTime + duration);
       };
 
-      // Play 3 beeps with increasing pitch
-      playBeep(audioContext.currentTime, 600);
-      playBeep(audioContext.currentTime + 0.3, 800);
-      playBeep(audioContext.currentTime + 0.6, 1000);
+      // Play 4 prominent beeps for "WAKTU HABIS"
+      playBeep(audioContext.currentTime, 500, 0.5);        // Lower pitch
+      playBeep(audioContext.currentTime + 0.6, 700, 0.5);  // Medium pitch
+      playBeep(audioContext.currentTime + 1.2, 900, 0.5);  // Higher pitch
+      playBeep(audioContext.currentTime + 1.8, 1100, 0.8); // Highest pitch, longer
     } catch (error) {
       console.warn('Error playing completion sound:', error);
     }
