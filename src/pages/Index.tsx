@@ -6,15 +6,19 @@ import { TimerProgress } from '@/components/TimerProgress';
 import { useSpeechSynthesis } from '@/hooks/useSpeechSynthesis';
 import { useToast } from '@/hooks/use-toast';
 import heroImage from '@/assets/hero-image.jpg';
-
 const Index = () => {
   const [scheduledMessages, setScheduledMessages] = useState<ScheduledMessage[]>([]);
   const [currentDuration, setCurrentDuration] = useState(300); // 5 minutes default
   const [currentRemainingTime, setCurrentRemainingTime] = useState(300);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
-  const { speak, selectedVoice, handleVoiceChange } = useSpeechSynthesis();
-  const { toast } = useToast();
-
+  const {
+    speak,
+    selectedVoice,
+    handleVoiceChange
+  } = useSpeechSynthesis();
+  const {
+    toast
+  } = useToast();
   const handleAddMessage = useCallback((messageData: Omit<ScheduledMessage, 'id' | 'executed'>) => {
     const newMessage: ScheduledMessage = {
       ...messageData,
@@ -24,24 +28,23 @@ const Index = () => {
     setScheduledMessages(prev => [...prev, newMessage]);
     toast({
       title: "Pesan Ditambahkan",
-      description: `Pesan akan dibacakan pada menit ke-${Math.floor(messageData.timeInSeconds / 60)}:${(messageData.timeInSeconds % 60).toString().padStart(2, '0')}`,
+      description: `Pesan akan dibacakan pada menit ke-${Math.floor(messageData.timeInSeconds / 60)}:${(messageData.timeInSeconds % 60).toString().padStart(2, '0')}`
     });
   }, [toast]);
-
   const handleRemoveMessage = useCallback((id: string) => {
     setScheduledMessages(prev => prev.filter(msg => msg.id !== id));
     toast({
       title: "Pesan Dihapus",
-      description: "Pesan terjadwal telah dihapus dari daftar",
+      description: "Pesan terjadwal telah dihapus dari daftar"
     });
   }, [toast]);
-
   const handleMessageExecuted = useCallback((messageId: string) => {
     setScheduledMessages(prev => {
-      const updatedMessages = prev.map(msg => 
-        msg.id === messageId ? { ...msg, executed: true } : msg
-      );
-      
+      const updatedMessages = prev.map(msg => msg.id === messageId ? {
+        ...msg,
+        executed: true
+      } : msg);
+
       // Find and speak the message
       const message = prev.find(msg => msg.id === messageId);
       if (message) {
@@ -49,14 +52,12 @@ const Index = () => {
         toast({
           title: "🔊 Pesan Otomatis Dibacakan",
           description: message.message,
-          duration: 5000,
+          duration: 5000
         });
       }
-      
       return updatedMessages;
     });
   }, [speak, toast]);
-
   const handleTimeUpdate = useCallback((remainingSeconds: number, isRunning: boolean, totalSeconds?: number) => {
     setCurrentRemainingTime(remainingSeconds);
     setIsTimerRunning(isRunning);
@@ -64,23 +65,17 @@ const Index = () => {
       setCurrentDuration(totalSeconds);
     }
   }, []);
-
   const handleSpeakMessage = useCallback((message: string) => {
     speak(message);
   }, [speak]);
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <div className="relative bg-gradient-primary text-white overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-center opacity-20"
-          style={{ backgroundImage: `url(${heroImage})` }}
-        />
+        <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{
+        backgroundImage: `url(${heroImage})`
+      }} />
         <div className="relative z-10 container mx-auto px-4 py-16 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 animate-fade-in">
-            Timer OSCE Pro
-          </h1>
+          <h1 className="text-4xl md:text-6xl font-bold mb-4 animate-fade-in">Timer OSCE</h1>
           <p className="text-xl md:text-2xl opacity-90 max-w-2xl mx-auto">
             Timer profesional untuk ujian OSCE dengan pesan suara otomatis dan kontrol lengkap
           </p>
@@ -92,35 +87,16 @@ const Index = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Left Column - Timer */}
             <div className="space-y-8">
-              <Timer 
-                onTimeUpdate={handleTimeUpdate}
-                scheduledMessages={scheduledMessages}
-                onMessageExecuted={handleMessageExecuted}
-              />
+              <Timer onTimeUpdate={handleTimeUpdate} scheduledMessages={scheduledMessages} onMessageExecuted={handleMessageExecuted} />
               
-              <VoiceSettings
-                onVoiceChange={handleVoiceChange}
-                onSpeak={handleSpeakMessage}
-                selectedVoice={selectedVoice}
-              />
+              <VoiceSettings onVoiceChange={handleVoiceChange} onSpeak={handleSpeakMessage} selectedVoice={selectedVoice} />
             </div>
 
             {/* Right Column - Message Scheduler & Progress */}
             <div className="space-y-8">
-              <TimerProgress
-                remainingSeconds={currentRemainingTime}
-                totalSeconds={currentDuration}
-                isRunning={isTimerRunning}
-                scheduledMessages={scheduledMessages}
-              />
+              <TimerProgress remainingSeconds={currentRemainingTime} totalSeconds={currentDuration} isRunning={isTimerRunning} scheduledMessages={scheduledMessages} />
               
-              <MessageScheduler
-                messages={scheduledMessages}
-                onAddMessage={handleAddMessage}
-                onRemoveMessage={handleRemoveMessage}
-                onSpeakMessage={handleSpeakMessage}
-                totalDuration={currentDuration}
-              />
+              <MessageScheduler messages={scheduledMessages} onAddMessage={handleAddMessage} onRemoveMessage={handleRemoveMessage} onSpeakMessage={handleSpeakMessage} totalDuration={currentDuration} />
             </div>
           </div>
 
@@ -178,8 +154,6 @@ const Index = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
