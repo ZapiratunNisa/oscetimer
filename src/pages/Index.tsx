@@ -37,22 +37,25 @@ const Index = () => {
   }, [toast]);
 
   const handleMessageExecuted = useCallback((messageId: string) => {
-    setScheduledMessages(prev => 
-      prev.map(msg => 
+    setScheduledMessages(prev => {
+      const updatedMessages = prev.map(msg => 
         msg.id === messageId ? { ...msg, executed: true } : msg
-      )
-    );
-    
-    const message = scheduledMessages.find(msg => msg.id === messageId);
-    if (message) {
-      speak(message.message);
-      toast({
-        title: "🔊 Pesan Otomatis Dibacakan",
-        description: message.message,
-        duration: 5000,
-      });
-    }
-  }, [scheduledMessages, speak, toast]);
+      );
+      
+      // Find and speak the message
+      const message = prev.find(msg => msg.id === messageId);
+      if (message) {
+        speak(message.message);
+        toast({
+          title: "🔊 Pesan Otomatis Dibacakan",
+          description: message.message,
+          duration: 5000,
+        });
+      }
+      
+      return updatedMessages;
+    });
+  }, [speak, toast]);
 
   const handleTimeUpdate = useCallback((remainingSeconds: number, isRunning: boolean) => {
     setCurrentRemainingTime(remainingSeconds);
