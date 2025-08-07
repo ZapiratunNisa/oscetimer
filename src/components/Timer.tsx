@@ -73,7 +73,8 @@ export const Timer: React.FC<TimerProps> = ({
           
           // Check for scheduled messages
           scheduledMessages.forEach(msg => {
-            if (!msg.executed && newTime === (totalSeconds - msg.timeInSeconds)) {
+            const triggerTime = totalSeconds - msg.timeInSeconds;
+            if (!msg.executed && newTime <= triggerTime && (newTime + 1) > triggerTime) {
               onMessageExecuted?.(msg.id);
             }
           });
