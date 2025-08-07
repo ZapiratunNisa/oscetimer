@@ -57,9 +57,12 @@ const Index = () => {
     });
   }, [speak, toast]);
 
-  const handleTimeUpdate = useCallback((remainingSeconds: number, isRunning: boolean) => {
+  const handleTimeUpdate = useCallback((remainingSeconds: number, isRunning: boolean, totalSeconds?: number) => {
     setCurrentRemainingTime(remainingSeconds);
     setIsTimerRunning(isRunning);
+    if (totalSeconds !== undefined) {
+      setCurrentDuration(totalSeconds);
+    }
   }, []);
 
   const handleSpeakMessage = useCallback((message: string) => {

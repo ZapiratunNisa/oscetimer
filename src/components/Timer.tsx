@@ -16,7 +16,7 @@ interface ScheduledMessage {
 }
 
 interface TimerProps {
-  onTimeUpdate?: (remainingSeconds: number, isRunning: boolean) => void;
+  onTimeUpdate?: (remainingSeconds: number, isRunning: boolean, totalSeconds?: number) => void;
   scheduledMessages?: ScheduledMessage[];
   onMessageExecuted?: (messageId: string) => void;
 }
@@ -52,8 +52,8 @@ export const Timer: React.FC<TimerProps> = ({
   }, [minutes, seconds]);
 
   useEffect(() => {
-    onTimeUpdate?.(remainingSeconds, isRunning);
-  }, [remainingSeconds, isRunning, onTimeUpdate]);
+    onTimeUpdate?.(remainingSeconds, isRunning, totalSeconds);
+  }, [remainingSeconds, isRunning, totalSeconds, onTimeUpdate]);
 
   useEffect(() => {
     if (isRunning && remainingSeconds > 0) {
@@ -73,8 +73,9 @@ export const Timer: React.FC<TimerProps> = ({
           
           // Check for scheduled messages
           scheduledMessages.forEach(msg => {
-            const triggerTime = totalSeconds - msg.timeInSeconds;
-            if (!msg.executed && newTime <= triggerTime && (newTime + 1) > triggerTime) {
+            const elapsedSeconds = totalSeconds - newTime;
+            if (!msg.executed && elapsedSeconds >= msg.timeInSeconds && (elapsedSeconds - 1) < msg.timeInSeconds) {
+              console.log(`Triggering message: "${msg.message}" at ${elapsedSeconds}s (scheduled at ${msg.timeInSeconds}s)`);
               onMessageExecuted?.(msg.id);
             }
           });
